@@ -6,7 +6,7 @@ This repository is a public product introduction and AI integration guide. It co
 
 - Public product identity and high-level scope for AIMAN.World, Robotics World, and 聚身之家.
 - Links to the live Agent Card, manifests, and developer documentation.
-- Minimal read-only MCP and REST discovery examples.
+- Minimal read-only MCP and REST query examples.
 - Public Agent behavior and contribution-boundary guidance.
 
 ## Excluded

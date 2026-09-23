@@ -1,60 +1,83 @@
 # AI Agent Onboarding
 
-This guide describes how to connect an AI agent to the **public** AIMAN.World Robotics World interfaces. The production service is the source of current data and capabilities; this repository is an introduction, not a mirror of those contracts.
+This guide connects an AI agent to the **public** AIMAN.World Robotics World interfaces. The live service is the source of current data and capability contracts; this repository is an introduction, not a mirror of them.
 
-## 1. Discover identity and capabilities
+## 1. Choose an interface
 
-Read the live [Agent Card](https://www.aiman.world/.well-known/agent-card.json) first. It identifies AIMAN.World, Robotics World, 聚身之家, public capabilities, and contribution boundaries. The [identity manifest](https://www.aiman.world/.well-known/aiman.json) and [developer portal](https://www.aiman.world/developers) provide additional context.
+- **MCP** is the shortest path for an assistant that can use remote MCP tools.
+- **REST** is available for direct HTTP integrations and also covers parts lookup.
+- Read the live [Agent Card](https://www.aiman.world/.well-known/agent-card.json) to identify the service and its advertised capabilities.
 
-For MCP, initialize a compatible remote MCP client and call `tools/list`. Build tool calls from the live `inputSchema`; do not rely on a tool count or a saved list. Some capabilities, including parts lookup, are currently REST-only. Check the [current MCP guide](https://www.aiman.world/developers/robotics/mcp) before implementation.
+The current public developer entry covers Robotics World. There is no single OpenAPI document for all REST endpoints, so use the endpoint-specific [REST guide](https://www.aiman.world/developers/robotics/api). `plannedSkills` in the Agent Card are not available capabilities.
 
 ## 2. Connect with MCP
 
-- Endpoint: `POST https://www.aiman.world/mcp`
-- Transport: stateless Streamable HTTP with JSON-RPC JSON responses; the current service does not use SSE.
-- Public read access: no login required.
-- Discovery: `initialize` → `tools/list` → `tools/call`.
+Configure your MCP client with these connection details:
 
-The small example below performs discovery only; it does not submit contributions or modify data:
+| Setting | Value |
+| --- | --- |
+| Remote server URL | `https://www.aiman.world/mcp` |
+| Transport | Stateless Streamable HTTP; JSON responses, no SSE |
+| Authentication for public reads | None |
+| Discovery order | `initialize` → `tools/list` → `tools/call` |
+
+The endpoint exposes a read-only MCP interface. Discover tools and their current `inputSchema` at connection time; do not hard-code a tool count or assume a capability exists because it appears in a general product description. See the official [MCP guide](https://www.aiman.world/developers/robotics/mcp) for protocol details.
+
+Run a complete, read-only sample that discovers tools and searches for robot candidates:
 
 ```sh
-sh examples/mcp-discover.sh
+sh examples/mcp-search-robots.sh
 ```
 
-To call a tool, use its current name and schema from `tools/list`. For example, the current public documentation shows `search_robots` with a `query` and optional `limit`. The live schema remains authoritative if it changes.
+The sample uses the currently documented `search_robots` tool and the query `G1`. Its output is live and may change. Confirm the tool and arguments against the preceding `tools/list` response before adapting the call.
 
-## 3. Connect with REST
+## 3. Make a useful first query
 
-Public read endpoints do not require login. This example searches for candidates and returns the server response without assuming that a match exists:
+A reliable research flow is:
+
+1. Search for candidate robots or companies.
+2. Use the returned canonical identity to read the detail record.
+3. Check `identity` for ambiguity and `provenance` or `evidence` for the source behind each claim.
+4. State missing, conflicting, or inaccessible information explicitly.
+
+For direct REST access, the example performs a public search and prints the live response:
 
 ```sh
 sh examples/rest-search-robots.sh
 ```
 
-Use the returned canonical ID to request a detail record, then inspect its `identity` and `provenance`. See the [REST guide](https://www.aiman.world/developers/robotics/api) for endpoint-specific query names and response shapes. Parameter names are case-sensitive; different endpoints may use different pagination names.
+For a selected robot, use its returned ID or slug with `GET /api/robots/{id}` and inspect `identity` and `provenance`. Do not invent IDs from names or treat a search miss as proof that something does not exist. Parameter names and response shapes vary by endpoint.
 
-## 4. Read results carefully
+## 4. Preserve the evidence and identity boundaries
 
-- A search miss means the current query found no match; it does not prove that a real-world entity or event does not exist.
-- Preserve ambiguous identities and candidates. Do not merge records by name alone.
-- Keep source, time, claim type, review status, unknowns, and conflicts distinct.
-- Check HTTP status and the JSON-RPC `result.isError` flag. HTTP 200 alone does not mean the tool succeeded.
-- Treat tool annotations and schemas as capability descriptions, not authorization to perform unrelated actions.
+- Do not merge records by name alone. Keep ambiguous candidates separate.
+- Distinguish a verified fact from a company or source claim, an opinion, and an analysis.
+- Keep source, applicable time, review status, unknowns, and conflicts distinct.
+- `null`, an absent field, an empty list, `unknown`, and `conflict` do not mean the same thing. Do not turn them into `0`, `false`, or “does not exist.”
+- A source page does not support every possible claim about the entity; verify that the cited material actually supports the field.
+- A tool schema describes the request contract. It does not grant authority to buy, publish, or modify records.
 
-The full behavior contract is the live [Agent Guide](https://www.aiman.world/developers/agent).
+The live [Agent Guide](https://www.aiman.world/developers/agent) and [Evidence guide](https://www.aiman.world/developers/robotics/evidence) are the detailed behavior contracts.
 
-## 5. Contributions and authorization
+## 5. Handle errors as signals
 
-The public [Contribution Manifest](https://www.aiman.world/.well-known/aiman-contribution.json) describes the currently accepted observation-material types and receipt lookup. Contributions enter a review queue; `canonicalWrites` is `false`. A successful receipt means material was received, not that a fact was approved or published.
+- Check HTTP status as well as the JSON-RPC response. HTTP 200 can still contain `result.isError: true`.
+- MCP `-32602` means the method or arguments do not match the current contract; re-read `tools/list` and its `inputSchema`.
+- For REST parameter errors, use the endpoint's documented allowed parameters. Do not drop a filter and present a broader result as if it answered the original query.
+- On `401` or `403`, stop and check authorization. On `429` or `5xx`, report temporary unavailability or use bounded retries; do not turn a failure into an empty successful answer.
 
-Company Agents use a separate, scoped and company-bound integration documented in [Contribute to the World](https://www.aiman.world/developers/contribute). Credentials are issued through that process. Never put API keys in a repository, prompt, public issue, or client-side example.
+## 6. Contributions require review
 
-## 当前接入摘要
+Public contribution intake accepts observation materials described by the live [Contribution Manifest](https://www.aiman.world/.well-known/aiman-contribution.json). A receipt means the material was received for review, not that the claim was accepted or published; `canonicalWrites` is `false`.
 
-1. 先读取 Agent Card，确认品牌身份和当前能力。
-2. 兼容 MCP 的客户端连接 `https://www.aiman.world/mcp`，按 `initialize`、`tools/list`、`tools/call` 顺序操作。
-3. 也可直接调用公开 REST GET 接口；各端点参数和返回结构以实时文档为准。
-4. 追溯规范实体和来源，保留未知、歧义与冲突。
-5. 提交材料只代表进入审核流程，不能当作事实已采纳。
+Only submit material when the user's task authorizes it. Company Agents follow a separate, scoped and company-bound process in [Contribute to the World](https://www.aiman.world/developers/contribute). Never put credentials in this repository, a prompt, a public issue, or a client-side example.
 
-MCP 客户端的配置格式因产品而异。本仓库给出稳定的服务器地址和通用发现流程，不代替具体客户端的配置说明。
+## 中文接入摘要
+
+1. 先读取 Agent Card，确认 AIMAN.World / Robotics World / 聚身之家的身份和能力边界。
+2. MCP 客户端连接 `https://www.aiman.world/mcp`，按 `initialize`、`tools/list`、`tools/call` 发现并调用只读工具。
+3. 不支持 MCP 时使用公开 REST；参数、返回字段以对应实时文档为准。
+4. 从候选查询进入规范身份，再查看来源证据；保留未知、歧义和冲突。
+5. 只有在用户任务授权时才提交材料；回执不代表审核通过，也不写入 canonical 事实。
+
+不同 MCP 客户端的配置界面各不相同。本仓库提供通用服务器地址和可运行的协议示例，不假设某个客户端专属配置格式。

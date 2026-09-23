@@ -6,25 +6,36 @@
 
 AIMAN.World is the parent brand. Robotics World is its robotics-industry World Model. **聚身之家** is the Chinese product name and public entry. It connects robot and company identities with parts, relationships, events, state changes, and evidence so people and AI can research the robotics ecosystem from traceable sources.
 
-聚身之家面向机器人产业研究、产品探索与 AI 查询：从机器人和企业出发，继续查看关系、事件、状态变化与来源证据。缺少信息时保留未知和冲突，不把猜测包装成事实。
+聚身之家帮助人和 AI 查询机器人、企业、零部件、产业关系、事件与状态，并沿着记录查看来源证据。信息缺失、身份歧义或来源冲突时，保留这些边界，不把猜测写成事实。
 
-> 品牌关系：`AIMAN.World`（母品牌）→ `Robotics World`（机器人产业 World Model）→ `聚身之家`（中文产品名与公开入口）。不要把“聚身”自动改写为“具身”。
+> 品牌关系：`AIMAN.World`（母品牌）→ `Robotics World`（机器人产业 World Model）→ `聚身之家`（中文产品名与公开入口）。不要把“聚身”自动改写为“具身”。当前公开开发入口开放的是 Robotics World。
 
 ## What you can explore
 
-- Robot profiles and evidence-backed specifications.
-- Company identities and directional industry relationships.
-- Parts and robot composition, with current access through REST.
-- Events, exhibitions, and recorded state changes.
-- Sources, claims, unknowns, and conflicts behind available records.
+| Research task | Public entry |
+| --- | --- |
+| Find robot models and inspect their identity and available specifications | [Robot REST API](https://www.aiman.world/developers/robotics/api) or discovered MCP tools |
+| Explore companies and directional relationships | [REST API](https://www.aiman.world/developers/robotics/api) or discovered MCP tools |
+| Read parts and robot composition | REST API; parts lookup is currently REST-only |
+| Follow events, exhibitions, and recorded state changes | [Timeline and State guide](https://www.aiman.world/developers/robotics/timeline) |
+| Check how claims relate to sources, unknowns, and conflicts | [Evidence guide](https://www.aiman.world/developers/robotics/evidence) |
 
-Results describe the public read model and its evidence. They are not purchasing, delivery, compatibility, or investment guarantees.
+Records describe the public read model and the evidence actually available for each claim. They are not purchasing, delivery, compatibility, or investment guarantees.
 
 ## Connect an AI agent
 
-For compatible clients, use the public MCP endpoint `https://www.aiman.world/mcp`. Start from the live Agent Card and discover tools with `tools/list`; the returned schemas are the current capability contract. No login is required for public reads.
+For an MCP-compatible client, configure the remote server URL as `https://www.aiman.world/mcp`. Public reads need no login. Initialize the connection, call `tools/list`, and build requests from the live `inputSchema`; tool names and schemas can change. The endpoint currently uses stateless Streamable HTTP with JSON responses and does not provide SSE.
 
-For direct HTTP integrations, start at the [REST guide](https://www.aiman.world/developers/robotics/api). For connection steps, errors, evidence handling, and contribution boundaries, read [AI_ONBOARDING.md](AI_ONBOARDING.md).
+If your agent does not support MCP, use the public [REST guide](https://www.aiman.world/developers/robotics/api). REST query parameters and response shapes differ by endpoint; there is currently no single OpenAPI contract for the whole site.
+
+Run a live, read-only example from a clone:
+
+```sh
+sh examples/mcp-search-robots.sh
+sh examples/rest-search-robots.sh
+```
+
+For the full workflow—discovery, querying, evidence handling, errors, and contribution boundaries—see [AI_ONBOARDING.md](AI_ONBOARDING.md) and the official [Agent Guide](https://www.aiman.world/developers/agent).
 
 ## Official entry points
 
@@ -38,20 +49,20 @@ For direct HTTP integrations, start at the [REST guide](https://www.aiman.world/
 - [REST guide](https://www.aiman.world/developers/robotics/api)
 - [Contribution guide](https://www.aiman.world/developers/contribute)
 
-The live Agent Card, manifests, developer documentation, and current `tools/list` response take precedence over summaries in this repository.
+The live Agent Card, manifests, developer documentation, and current `tools/list` response take precedence over summaries in this repository. In particular, `plannedSkills` describes possible future work and does not mean those capabilities are open today.
 
 ## Open projects
 
 - [Reality-First Development](https://github.com/Azhu9701/reality-first-development) — the Agent development method.
 - [Industry World Model](https://github.com/Azhu9701/industry-world-model) — the open World Model framework and reference implementation.
 
-This repository is the product introduction and AI onboarding guide. It does not mirror the production site or its data catalog. See [OPEN_SOURCE_SCOPE.md](OPEN_SOURCE_SCOPE.md).
+This repository introduces the product and helps AI developers get started. It does not mirror the production site, its implementation, or its data catalog. See [OPEN_SOURCE_SCOPE.md](OPEN_SOURCE_SCOPE.md).
 
-## 中文
+## 中文接入摘要
 
-聚身之家是 AIMAN.World 旗下 Robotics World 的中文产品名与公开入口。它将机器人、企业、零部件、关系、事件、状态与证据组织成可查询、可追溯的产业信息世界，帮助人和 AI 开展机器人产业研究与产品探索。
+AI 可以通过兼容 MCP 的客户端连接 `https://www.aiman.world/mcp`；先读取 [Agent Card](https://www.aiman.world/.well-known/agent-card.json)，再通过 `tools/list` 发现当前能力。没有 MCP 的系统可以使用[公开 REST API](https://www.aiman.world/developers/robotics/api)。
 
-接入 AI：兼容 MCP 的客户端连接 `https://www.aiman.world/mcp`，先读取 [Agent Card](https://www.aiman.world/.well-known/agent-card.json)，再通过 `tools/list` 发现当前工具；也可以按[公开 REST 文档](https://www.aiman.world/developers/robotics/api)直接查询。AI 的贡献材料只进入审核流程，不直接写入已确认的事实。完整步骤见 [AI_ONBOARDING.md](AI_ONBOARDING.md)。
+AI 提交的观察材料进入审核流程，不会直接写入已确认事实。完整步骤见 [AI 接入指南](AI_ONBOARDING.md)；项目公开范围见 [OPEN_SOURCE_SCOPE.md](OPEN_SOURCE_SCOPE.md)。
 
 ## License
 
