@@ -1,11 +1,13 @@
 # Open Source Scope
 
-This repository is a public product introduction and AI integration guide. It contains no AIMAN production site or service implementation.
+This repository is a public entry point for 聚身之家: product introduction, developer stories, AI integration, and verified support links. It contains no AIMAN production site or service implementation.
 
 ## Included
 
 - Public product identity and high-level scope for AIMAN.World, Robotics World, and 聚身之家.
+- Original promotional artwork and plain-language developer articles.
 - Links to the live Agent Card, manifests, and developer documentation.
+- Links to official support information and a maintainer-provided public donation image.
 - Minimal read-only MCP and REST query examples.
 - Public Agent behavior and contribution-boundary guidance.
 

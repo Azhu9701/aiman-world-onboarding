@@ -1,8 +1,9 @@
 # Contributing
 
-Help keep this introduction accurate, useful, and safe to publish.
+Help keep this introduction and developer column accurate, clear, and safe to publish.
 
 - Link product claims to current public pages or machine-readable contracts.
+- Write for curious readers first; explain unfamiliar terms and link technical details to the official developer portal.
 - Avoid hard-coded product counts, tool counts, or catalog snapshots.
 - Mark examples as read-only and verify them against the live public interface.
 - Keep new material within [OPEN_SOURCE_SCOPE.md](OPEN_SOURCE_SCOPE.md).
